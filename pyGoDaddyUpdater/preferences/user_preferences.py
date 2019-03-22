@@ -24,6 +24,8 @@ class UserPreferences(object):
                 self.__time = kwargs["time"]
                 self.__key = kwargs["key"]
                 self.__secret = kwargs["secret"]
+                self.__pid = kwargs["pid"]
+                self.__log = kwargs["log"]
             except KeyError:
                 raise AttributeError("Some value was not provided while creating user preferences\n"
                                      "Values are:\n"
@@ -38,6 +40,8 @@ class UserPreferences(object):
             self.__time = None
             self.__key = None
             self.__secret = None
+            self.__pid = None
+            self.__log = None
         self.__latest_ip = "0.0.0.0"
 
     def load_preferences(self):
@@ -53,6 +57,8 @@ class UserPreferences(object):
             self.__key = preferences["key"]
             self.__name = preferences["name"]
             self.__latest_ip = preferences["latest_ip"]
+            self.__pid = preferences["pid"]
+            self.__log = preferences["log"]
         else:
             raise FileNotFoundError("There are no saved user preferences. Call \"save_preferences\" the first time")
 
@@ -64,7 +70,9 @@ class UserPreferences(object):
                        "time": self.__time,
                        "key": self.__key,
                        "secret": self.__secret,
-                       "latest_ip": self.__latest_ip}
+                       "latest_ip": self.__latest_ip,
+                       "pid": self.__pid,
+                       "log": self.__log}
         with open("user.preferences", "wb") as fpreferences:
             pickle.dump(preferences, fpreferences, pickle.HIGHEST_PROTOCOL)
 
@@ -85,3 +93,27 @@ class UserPreferences(object):
 
     def get_latest_ip(self):
         return self.__latest_ip
+
+    def set_domain(self, domain):
+        self.__domain = domain
+
+    def set_name(self, name):
+        self.__name = name
+
+    def set_time(self, time):
+        self.__time = time
+
+    def set_key(self, key):
+        self.__key = key
+
+    def set_secret(self, secret):
+        self.__secret = secret
+
+    def set_latest_ip(self, ip):
+        self.__latest_ip = ip
+
+    @staticmethod
+    def are_preferences_stored():
+        import os
+
+        return os.path.exists("user.preferences")
