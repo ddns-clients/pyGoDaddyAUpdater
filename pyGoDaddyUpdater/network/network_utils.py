@@ -37,3 +37,12 @@ class GoDaddy(object):
 
         ip = search("([0-9]{1,3}\.){3}[0-9]{1,3}", result)
         return ip.group(0) if ip else "0.0.0.0"
+
+    def set_goddady_ip(self, ip):
+        from urllib.request import Request, urlopen
+
+        request = Request(url="https://api.godaddy.com/v1/domains/{0}/records/A/{1}".format(self.__domain, self.__name),
+                          data="\"data\":'{0}', \"ttl\":600".format(ip),
+                          headers={"Authorization": self.__headers, "Content-Type": "application/json"},
+                          method="PUT")
+        return urlopen(request).getcode()
