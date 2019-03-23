@@ -56,8 +56,7 @@ def main():
 
 
 def parser():
-    is_first_execution = preferences.are_preferences_stored()
-    print(is_first_execution)
+    is_first_execution = not preferences.are_preferences_stored()
     args = ArgumentParser(description=description,
                           allow_abbrev=False)
     args.add_argument("--domain",
