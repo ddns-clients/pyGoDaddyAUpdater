@@ -15,7 +15,6 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 from argparse import ArgumentParser
 from logging import getLogger
-from sys import argv
 from time import sleep
 
 from daemonize import Daemonize
@@ -111,25 +110,33 @@ def parser():
                       metavar="GROUP NAME",
                       help="Run the daemon as the specified group.")
     p_args = args.parse_args()
+    should_save_preferences = False
     if p_args.domain:
         preferences.set_domain(p_args.domain)
+        should_save_preferences = True
     if p_args.name:
         preferences.set_domain(p_args.name)
+        should_save_preferences = True
     if p_args.time:
         preferences.set_domain(p_args.time * 60)
+        should_save_preferences = True
     if p_args.key:
         preferences.set_domain(p_args.key)
+        should_save_preferences = True
     if p_args.secret:
         preferences.set_domain(p_args.secret)
+        should_save_preferences = True
     if p_args.no_daemonize:
         preferences.run_as_daemon(not p_args.no_daemonize)
     if p_args.pid:
         preferences.set_pid_file(p_args.pid)
+        should_save_preferences = True
     if p_args.log:
         preferences.set_log_file(p_args.log)
+        should_save_preferences = True
     user = p_args.user
     group = p_args.group
-    if len(argv) >= 1:
+    if should_save_preferences:
         preferences.save_preferences()
     file_handler = setup_logging("appLogger", preferences.get_log_file())
     fds = [file_handler.stream.fileno()]
