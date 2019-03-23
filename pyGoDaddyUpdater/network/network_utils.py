@@ -42,7 +42,7 @@ class GoDaddy(object):
         from urllib.request import Request, urlopen
 
         request = Request(url="https://api.godaddy.com/v1/domains/{0}/records/A/{1}".format(self.__domain, self.__name),
-                          data="\"data\":'{0}', \"ttl\":600".format(ip),
+                          data="\"data\":'{0}', \"ttl\":600".format(ip).encode("utf-8"),
                           headers={"Authorization": self.__headers, "Content-Type": "application/json"},
                           method="PUT")
         return urlopen(request).getcode()
