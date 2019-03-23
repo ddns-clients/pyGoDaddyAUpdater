@@ -46,12 +46,18 @@ def main():
                 log.info("IP needs an upgrade: OLD: {0} | NEW: {1}".format(preferences.get_latest_ip(), current_ip))
                 result = net.set_goddady_ip(current_ip)
                 log.info("IP updated correctly! - Operation return code: {0}".format(result))
+                log.debug("Updating latest stored IP...")
+                preferences.set_latest_ip(current_ip)
+            else:
+                log.info("IP has not changed - skipping")
+                log.info("Next check in about {0} minute(s)".format(preferences.get_time() / 60))
             if not preferences.is_running_as_daemon():
                 loop_continuation = False
             else:
                 sleep(preferences.get_time())
     except KeyboardInterrupt:
         print("Received SIGINT - exiting...")
+        preferences.save_preferences()
         exit(1)
 
 
