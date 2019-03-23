@@ -154,6 +154,8 @@ def parser():
     group = p_args.group
     if should_save_preferences:
         preferences.save_preferences()
+    if not is_first_execution:
+        preferences.load_preferences()
     file_handler = setup_logging("appLogger", preferences.get_log_file())
     fds = [file_handler.stream.fileno()]
 
