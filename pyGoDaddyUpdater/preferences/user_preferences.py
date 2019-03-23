@@ -45,14 +45,20 @@ class UserPreferences(object):
         self.__latest_ip = "0.0.0.0"
         self.__daemonize = True
 
+    @staticmethod
+    def get_preferences_file():
+        import os
+
+        return os.path.dirname(os.path.abspath(__file__)) + "/user.preferences"
+
     def load_preferences(self):
         import pickle
         import os
 
         from base64 import b64decode
 
-        if os.path.exists("user.preferences"):
-            with open("user.preferences", "rb") as fpreferences:
+        if os.path.exists(self.get_preferences_file()):
+            with open(self.get_preferences_file(), "rb") as fpreferences:
                 preferences = pickle.load(fpreferences)
             self.__domain = preferences["domain"]
             self.__secret = b64decode(preferences["secret"]).decode("utf-8")
@@ -78,7 +84,7 @@ class UserPreferences(object):
                        "latest_ip": self.__latest_ip,
                        "pid": self.__pid,
                        "log": self.__log}
-        with open("user.preferences", "wb") as fpreferences:
+        with open(self.get_preferences_file(), "wb") as fpreferences:
             pickle.dump(preferences, fpreferences, pickle.HIGHEST_PROTOCOL)
 
     def get_domain(self):
@@ -139,4 +145,4 @@ class UserPreferences(object):
     def are_preferences_stored():
         import os
 
-        return os.path.exists("user.preferences")
+        return os.path.exists(UserPreferences.get_preferences_file())
