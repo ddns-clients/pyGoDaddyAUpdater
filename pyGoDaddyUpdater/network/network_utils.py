@@ -47,7 +47,7 @@ class GoDaddy(object):
 
         data = dumps([{"data": ip, "ttl": 600, "name": self.__name, "type": "A"}])
         request = Request(url="https://api.godaddy.com/v1/domains/{0}/records/A/{1}".format(self.__domain, self.__name),
-                          data=data,
+                          data=data.encode("utf-8"),
                           headers={"Authorization": self.__headers, "Content-Type": "application/json"},
                           method="PUT")
         return urlopen(request).getcode()
