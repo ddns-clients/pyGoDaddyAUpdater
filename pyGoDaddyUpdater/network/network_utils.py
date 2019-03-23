@@ -40,9 +40,14 @@ class GoDaddy(object):
 
     def set_goddady_ip(self, ip):
         from urllib.request import Request, urlopen
+        try:
+            from ujson import dumps
+        except ImportError:
+            from json import dumps
 
+        data = dumps([{"data": ip, "ttl": 600, "name": self.__name, "type": "A"}])
         request = Request(url="https://api.godaddy.com/v1/domains/{0}/records/A/{1}".format(self.__domain, self.__name),
-                          data="\"data\":'{0}', \"ttl\":600".format(ip).encode("utf-8"),
+                          data=data,
                           headers={"Authorization": self.__headers, "Content-Type": "application/json"},
                           method="PUT")
         return urlopen(request).getcode()
