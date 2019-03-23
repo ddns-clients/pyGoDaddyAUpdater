@@ -18,6 +18,8 @@ from logging import getLogger
 from sys import argv
 from time import sleep
 
+from daemonize import Daemonize
+
 from pyGoDaddyUpdater.logging import LoggingHandler
 from pyGoDaddyUpdater.logging import setup_logging
 from pyGoDaddyUpdater.network import GoDaddy
@@ -25,15 +27,6 @@ from pyGoDaddyUpdater.network import get_machine_public_ip
 from pyGoDaddyUpdater.preferences import UserPreferences
 from pyGoDaddyUpdater.values import description
 
-arguments = {"domain": "",
-             "name": "",
-             "time": 300,
-             "key": "",
-             "secret": "",
-             "latest_ip": "0.0.0.0",
-             "no_daemonize": False,
-             "pid_file": "",
-             "log_file": "/var/log/pygodaddy.log"}
 preferences = UserPreferences()
 
 
@@ -41,29 +34,29 @@ def main():
     try:
         loop_continuation = True
         log = LoggingHandler(logs=[getLogger("appLogger")])
-        net = GoDaddy(arguments["domain"], arguments["name"], arguments["key"], arguments["secret"])
+        net = GoDaddy(preferences.get_domain(), preferences.get_name(), preferences.get_key(), preferences.get_secret())
         while loop_continuation:
             current_ip = get_machine_public_ip()
             log.info("Current machine IP: \"{0}\"".format(current_ip))
-            if arguments["latest_ip"] == "0.0.0.0":
-                arguments["latest_ip"] = net.get_godaddy_latest_ip()
+            if preferences.get_latest_ip() == "0.0.0.0":
+                preferences.set_latest_ip(net.get_godaddy_latest_ip())
                 log.warning("Latest IP not updated - saving GoDaddy stored value: \"{0}\""
-                            .format(arguments["latest_ip"]))
-            if arguments["latest_ip"] != current_ip:
-                log.info("IP needs an upgrade: OLD: {0} | NEW: {1}".format(arguments["latest_ip"], current_ip))
+                            .format(preferences.get_latest_ip()))
+            if preferences.get_latest_ip() != current_ip:
+                log.info("IP needs an upgrade: OLD: {0} | NEW: {1}".format(preferences.get_latest_ip(), current_ip))
                 result = net.set_goddady_ip(current_ip)
                 log.info("IP updated correctly! - Operation return code: {0}".format(result))
-            if not arguments["daemonize"]:
+            if not preferences.is_running_as_daemon():
                 loop_continuation = False
             else:
-                sleep(arguments["time"])
+                sleep(preferences.get_time())
     except KeyboardInterrupt:
         print("Received SIGINT - exiting...")
         exit(1)
 
 
 def parser():
-    is_first_execution = UserPreferences.are_preferences_stored()
+    is_first_execution = preferences.are_preferences_stored()
     args = ArgumentParser(description=description,
                           allow_abbrev=False)
     args.add_argument("--domain",
@@ -90,6 +83,7 @@ def parser():
     args.add_argument("--no_daemonize",
                       action="store_true",
                       required=False,
+                      default=False,
                       help="By default, the program runs as a daemon in background. With this option enabled, "
                            "the program will run only once and then exit.")
     args.add_argument("--pid",
@@ -104,31 +98,50 @@ def parser():
                       required=False,
                       metavar="LOG FILE",
                       help="Specifies a custom LOG file for storing current daemon logs.")
+    args.add_argument("--user",
+                      type=str,
+                      default=None,
+                      required=False,
+                      metavar="USERNAME",
+                      help="Run the daemon as the specified user.")
+    args.add_argument("--group",
+                      type=str,
+                      default=None,
+                      required=False,
+                      metavar="GROUP NAME",
+                      help="Run the daemon as the specified group.")
     p_args = args.parse_args()
     if p_args.domain:
-        arguments["domain"] = p_args.domain
         preferences.set_domain(p_args.domain)
     if p_args.name:
-        arguments["name"] = p_args.name
         preferences.set_domain(p_args.name)
     if p_args.time:
-        arguments["time"] = p_args.time * 60
-        preferences.set_domain(p_args.time)
+        preferences.set_domain(p_args.time * 60)
     if p_args.key:
-        arguments["key"] = p_args.key
         preferences.set_domain(p_args.key)
     if p_args.secret:
-        arguments["secret"] = p_args.secret
         preferences.set_domain(p_args.secret)
     if p_args.no_daemonize:
-        arguments["no_daemonize"] = p_args.no_daemonize
+        preferences.run_as_daemon(not p_args.no_daemonize)
     if p_args.pid:
-        arguments["pid_file"] = p_args.pid
+        preferences.set_pid_file(p_args.pid)
     if p_args.log:
-        arguments["log_file"] = p_args.log
+        preferences.set_log_file(p_args.log)
+    user = p_args.user
+    group = p_args.group
     if len(argv) >= 1:
         preferences.save_preferences()
-    setup_logging("appLogger", arguments["log_file"])
+    file_handler = setup_logging("appLogger", preferences.get_log_file())
+    fds = [file_handler.stream.fileno()]
+
+    daemon = Daemonize(app="pyGoDaddyDaemon",
+                       pid=preferences.get_pid_file(),
+                       action=main,
+                       keep_fds=fds,
+                       user=user,
+                       group=group,
+                       logger=getLogger("appLogger"))
+    daemon.start()
 
 
 if __name__ == '__main__':

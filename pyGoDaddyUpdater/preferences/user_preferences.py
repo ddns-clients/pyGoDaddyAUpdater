@@ -43,18 +43,21 @@ class UserPreferences(object):
             self.__pid = None
             self.__log = None
         self.__latest_ip = "0.0.0.0"
+        self.__daemonize = True
 
     def load_preferences(self):
         import pickle
         import os
 
+        from base64 import b64decode
+
         if os.path.exists("user.preferences"):
             with open("user.preferences", "rb") as fpreferences:
                 preferences = pickle.load(fpreferences)
             self.__domain = preferences["domain"]
-            self.__secret = preferences["secret"]
+            self.__secret = b64decode(preferences["secret"]).decode("utf-8")
             self.__time = preferences["time"]
-            self.__key = preferences["key"]
+            self.__key = b64decode(preferences["key"]).decode("utf-8")
             self.__name = preferences["name"]
             self.__latest_ip = preferences["latest_ip"]
             self.__pid = preferences["pid"]
@@ -65,11 +68,13 @@ class UserPreferences(object):
     def save_preferences(self):
         import pickle
 
+        from base64 import b64encode
+
         preferences = {"domain": self.__domain,
                        "name": self.__name,
                        "time": self.__time,
-                       "key": self.__key,
-                       "secret": self.__secret,
+                       "key": b64encode(bytes(self.__key, "utf-8")),
+                       "secret": b64encode(bytes(self.__secret, "utf-8")),
                        "latest_ip": self.__latest_ip,
                        "pid": self.__pid,
                        "log": self.__log}
@@ -94,6 +99,15 @@ class UserPreferences(object):
     def get_latest_ip(self):
         return self.__latest_ip
 
+    def get_pid_file(self):
+        return self.__pid
+
+    def get_log_file(self):
+        return self.__log
+
+    def is_running_as_daemon(self):
+        return self.__daemonize
+
     def set_domain(self, domain):
         self.__domain = domain
 
@@ -111,6 +125,15 @@ class UserPreferences(object):
 
     def set_latest_ip(self, ip):
         self.__latest_ip = ip
+
+    def set_pid_file(self, pid):
+        self.__pid = pid
+
+    def set_log_file(self, log):
+        self.__log = log
+
+    def run_as_daemon(self, daemonize: bool):
+        self.__daemonize = daemonize
 
     @staticmethod
     def are_preferences_stored():

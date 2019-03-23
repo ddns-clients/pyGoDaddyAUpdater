@@ -32,7 +32,7 @@ def cleanup_old_logs(log_file: str):
 
 
 def setup_logging(logger_name: str, log_file: str, level=logging.DEBUG,
-                  formatter: str = "%(asctime)s | [%(levelname)s]: %(message)s"):
+                  formatter: str = "%(asctime)s | [%(levelname)s]: %(message)s") -> logging.FileHandler:
     cleanup_old_logs(log_file)
     new_logging = logging.getLogger(logger_name)
     logging_formatter = logging.Formatter(formatter)
@@ -42,6 +42,8 @@ def setup_logging(logger_name: str, log_file: str, level=logging.DEBUG,
 
     new_logging.setLevel(level)
     new_logging.addHandler(logging_file_handler)
+
+    return logging_file_handler
 
 
 class LoggingHandler(object):
