@@ -14,6 +14,7 @@
 #     You should have received a copy of the GNU General Public License
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 from argparse import ArgumentParser
+from argparse import SUPPRESS
 from logging import getLogger
 from time import sleep
 
@@ -68,7 +69,7 @@ def parser():
                       help="GoDaddy 'A' Record name.")
     args.add_argument("--time",
                       type=int,
-                      default=5,
+                      default=SUPPRESS,
                       required=is_first_execution,
                       help="Time (in minutes) to check for updated IP (defaults: 5 min.) - must be higher than 0.")
     args.add_argument("--key",
@@ -87,13 +88,13 @@ def parser():
                            "the program will run only once and then exit.")
     args.add_argument("--pid",
                       type=str,
-                      default="/var/run/pygoddady/app.pid",
+                      default=SUPPRESS,
                       required=False,
                       metavar="PID FILE",
                       help="Specifies a custom PID file for storing current daemon PID.")
     args.add_argument("--log",
                       type=str,
-                      default="/var/log/pygodaddy.log",
+                      default=SUPPRESS,
                       required=False,
                       metavar="LOG FILE",
                       help="Specifies a custom LOG file for storing current daemon logs.")
@@ -115,25 +116,34 @@ def parser():
         preferences.set_domain(p_args.domain)
         should_save_preferences = True
     if p_args.name:
-        preferences.set_domain(p_args.name)
+        preferences.set_name(p_args.name)
         should_save_preferences = True
-    if p_args.time:
-        preferences.set_domain(p_args.time * 60)
+    if "time" in p_args:
+        preferences.set_time(p_args.time * 60)
         should_save_preferences = True
+    else:
+        if preferences.get_time() is None:
+            preferences.set_time(300)
     if p_args.key:
-        preferences.set_domain(p_args.key)
+        preferences.set_key(p_args.key)
         should_save_preferences = True
     if p_args.secret:
-        preferences.set_domain(p_args.secret)
+        preferences.set_secret(p_args.secret)
         should_save_preferences = True
     if p_args.no_daemonize:
         preferences.run_as_daemon(not p_args.no_daemonize)
-    if p_args.pid:
+    if "pid" in p_args:
         preferences.set_pid_file(p_args.pid)
         should_save_preferences = True
-    if p_args.log:
+    else:
+        if preferences.get_pid_file() is None:
+            preferences.set_pid_file("/var/run/pygoddady/app.pid")
+    if "log" in p_args:
         preferences.set_log_file(p_args.log)
         should_save_preferences = True
+    else:
+        if preferences.get_log_file() is None:
+            preferences.set_log_file("/var/log/pygoddady.log")
     user = p_args.user
     group = p_args.group
     if should_save_preferences:
