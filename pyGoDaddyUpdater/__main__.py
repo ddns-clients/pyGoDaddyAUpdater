@@ -20,8 +20,8 @@ from time import sleep
 
 from daemonize import Daemonize
 
-from pyGoDaddyUpdater.logging import LoggingHandler
-from pyGoDaddyUpdater.logging import setup_logging
+from pyGoDaddyUpdater.logging_utils import LoggingHandler
+from pyGoDaddyUpdater.logging_utils import setup_logging
 from pyGoDaddyUpdater.network import GoDaddy
 from pyGoDaddyUpdater.network import get_machine_public_ip
 from pyGoDaddyUpdater.preferences import UserPreferences
