@@ -13,6 +13,6 @@
 #
 #     You should have received a copy of the GNU General Public License
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
-from pyGoDaddyUpdater.logging_utils.utils import LoggingHandler
-from pyGoDaddyUpdater.logging_utils.utils import cleanup_old_logs
-from pyGoDaddyUpdater.logging_utils.utils import setup_logging
+from ..logging_utils.utils import LoggingHandler
+from ..logging_utils.utils import cleanup_old_logs
+from ..logging_utils.utils import setup_logging

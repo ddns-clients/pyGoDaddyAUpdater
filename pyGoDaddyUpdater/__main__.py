@@ -20,12 +20,12 @@ from time import sleep
 
 from daemonize import Daemonize
 
-from pyGoDaddyUpdater.logging_utils import LoggingHandler
-from pyGoDaddyUpdater.logging_utils import setup_logging
-from pyGoDaddyUpdater.network import GoDaddy
-from pyGoDaddyUpdater.network import get_machine_public_ip
-from pyGoDaddyUpdater.preferences import UserPreferences
-from pyGoDaddyUpdater.values import description
+from .logging_utils import LoggingHandler
+from .logging_utils import setup_logging
+from .network import GoDaddy
+from .network import get_machine_public_ip
+from .preferences import UserPreferences
+from .values import description
 
 preferences = UserPreferences()
 
