@@ -16,6 +16,8 @@
 from argparse import ArgumentParser
 from argparse import SUPPRESS
 from logging import getLogger
+from os import makedirs
+from os import path
 from time import sleep
 
 from daemonize import Daemonize
@@ -154,7 +156,7 @@ def parser():
         should_save_preferences = True
     else:
         if preferences.get_pid_file() is None:
-            preferences.set_pid_file("/var/run/pygoddady/app.pid")
+            preferences.set_pid_file("/var/run/pygoddady.pid")
     if "log" in p_args:
         preferences.set_log_file(p_args.log)
         should_save_preferences = True
@@ -168,11 +170,14 @@ def parser():
         if not (p_args.domain and p_args.name and p_args.key and p_args.secret):
             print("You must provide the required params for a new preferences file")
     if should_save_preferences:
-        preferences.save_preferences()
+        preferences.save_preferences(p_args.preferences)
     if not is_first_execution:
         preferences.load_preferences()
     file_handler = setup_logging("appLogger", preferences.get_log_file())
     fds = [file_handler.stream.fileno()]
+    pid_dir = path.dirname(path.abspath(preferences.get_pid_file()))
+    if not path.exists(pid_dir):
+        makedirs(path=pid_dir, exist_ok=True)
 
     daemon = Daemonize(app="pyGoDaddyDaemon",
                        pid=preferences.get_pid_file(),

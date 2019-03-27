@@ -2,6 +2,11 @@
 
 *DDNS Service for updating dynamically your GoDaddy 'A' Records when your public IP changes*
 
+[![PyPi](https://img.shields.io/badge/v1.1%20-PyPi-green.svg)](https://pypi.org/project/pyGoDaddyUpdater/)
+[![ZIP](https://img.shields.io/badge/Package%20-Zip-green.svg)](https://gitlab.javinator9889.com/Javinator9889/pyGoDaddyAUpdater/repository/master/archive.zip)
+[![GIT](https://img.shields.io/badge/Package%20-Git-green.svg)](https://gitlab.javinator9889.com/Javinator9889/pyGoDaddyAUpdater.git)
+[![Downloads](https://pepy.tech/badge/pygodaddyupdater)](https://pepy.tech/project/pygodaddyupdater)
+
 ## Index
 
  1. [Purpose](#purpose)

@@ -1,3 +1,4 @@
+from os import path
 from sys import version
 
 from setuptools import setup
@@ -5,9 +6,13 @@ from setuptools import setup
 if version < '3':
     raise RuntimeError("Python 3 is, at least, needed")
 
+this = path.abspath(path.dirname(__file__))
+with open(path.join(this, "README.md"), encoding="utf-8") as f:
+    long_description = f.read()
+
 setup(
     name='pyGoDaddyUpdater',
-    version='1.0',
+    version='1.1',
     packages=['pyGoDaddyUpdater',
               'pyGoDaddyUpdater.values',
               'pyGoDaddyUpdater.network',
@@ -18,11 +23,13 @@ setup(
     author='Javinator9889',
     author_email='javialonso007@hotmail.es',
     description='DDNS service for dynamically update GoDaddy A Records',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     include_package_data=False,
     zip_safe=True,
     download_url="https://gitlab.javinator9889.com/Javinator9889/pyGoDaddyAUpdater/repository/master/archive.zip",
     entry_points={
-        'console_scripts': ['godaddy_ddns=pyGoDaddyUpdater.__main__:parser()']
+        'console_scripts': ['godaddy_ddns=pyGoDaddyUpdater.__main__:parser']
     },
     install_requires=['daemonize'],
     classifiers=[
