@@ -29,7 +29,7 @@ for your public IP for seeing if it has changed. If you want also, you can confi
 
 There are two possibilities for installing this script:
 
-   ### 1. Using *setup.py*
+#### 1. Using *setup.py*
    
    Start by *cloning* this repository. For that, you will need to have 
    [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) installed. Then, run on Git Bash:
@@ -47,7 +47,7 @@ There are two possibilities for installing this script:
    sudo python3 setup.py install
    ```
    
-   ### 2. Using *pip* (easier and faster)
+#### 2. Using *pip* (easier and faster)
    
    I assume you have [**pip** installed](https://www.makeuseof.com/tag/install-pip-for-python/), so for using this package:
    ```text
