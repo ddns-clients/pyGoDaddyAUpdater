@@ -94,7 +94,7 @@ The available options are:
  + `--no_daemonize`: include this option for running this script **only once**.
  
  + `--pid PID FILE`: define your own PID file, in which the running daemon PID will be saved. By default, it is: 
- `/var/run/pygoddady/app.pid`.
+ `/var/run/pygoddady.pid`.
  
  + `--log LOG FILE`: define your own LOG file, in which the running daemon logs will be saved. By default, it is:
  `/var/log/pygoddady.log`.
