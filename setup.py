@@ -1,4 +1,9 @@
+from sys import version
+
 from setuptools import setup
+
+if version < '3':
+    raise RuntimeError("Python 3 is, at least, needed")
 
 setup(
     name='pyGoDaddyUpdater',
