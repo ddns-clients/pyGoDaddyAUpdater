@@ -71,10 +71,12 @@ class UserPreferences(object):
         else:
             raise FileNotFoundError("There are no saved user preferences. Call \"save_preferences\" the first time")
 
-    def save_preferences(self):
+    def save_preferences(self, filename="user.preferences"):
         import pickle
 
         from base64 import b64encode
+        from os import path
+        from os import makedirs
 
         preferences = {"domain": self.__domain,
                        "name": self.__name,
@@ -84,7 +86,10 @@ class UserPreferences(object):
                        "latest_ip": self.__latest_ip,
                        "pid": self.__pid,
                        "log": self.__log}
-        with open("user.preferences", "wb") as fpreferences:
+        file_dir = path.dirname(path.abspath(filename))
+        if not path.exists(file_dir):
+            makedirs(path=file_dir, exist_ok=True)
+        with open(filename, "wb") as fpreferences:
             pickle.dump(preferences, fpreferences, pickle.HIGHEST_PROTOCOL)
 
     def get_domain(self):

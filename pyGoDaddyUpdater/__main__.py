@@ -31,32 +31,36 @@ preferences = UserPreferences()
 
 
 def main():
+    loop_continuation = True
+    log = LoggingHandler(logs=[getLogger("appLogger")])
+    net = GoDaddy(preferences.get_domain(), preferences.get_name(), preferences.get_key(), preferences.get_secret())
     try:
-        loop_continuation = True
-        log = LoggingHandler(logs=[getLogger("appLogger")])
-        net = GoDaddy(preferences.get_domain(), preferences.get_name(), preferences.get_key(), preferences.get_secret())
         while loop_continuation:
             current_ip = get_machine_public_ip()
             log.info("Current machine IP: \"{0}\"".format(current_ip))
             if preferences.get_latest_ip() == "0.0.0.0":
                 preferences.set_latest_ip(net.get_godaddy_latest_ip())
-                log.warning("Latest IP not updated - saving GoDaddy stored value: \"{0}\""
+                log.warning("User saved latest IP is not up to date - downloading GoDaddy A Record value: \"{0}\""
                             .format(preferences.get_latest_ip()))
             if preferences.get_latest_ip() != current_ip:
-                log.info("IP needs an upgrade: OLD: {0} | NEW: {1}".format(preferences.get_latest_ip(), current_ip))
+                log.info("IP needs an upgrade - OLD IP: {0} | NEW IP: {1}"
+                         .format(preferences.get_latest_ip(), current_ip))
                 result = net.set_goddady_ip(current_ip)
                 log.info("IP updated correctly! - Operation return code: {0}".format(result))
-                log.debug("Updating latest stored IP...")
+                log.debug("Updating saved IP...")
                 preferences.set_latest_ip(current_ip)
             else:
                 log.info("IP has not changed - skipping")
-                log.info("Next check in about {0} minute(s)".format(preferences.get_time() / 60))
             if not preferences.is_running_as_daemon():
+                log.info("This script is only executed once. Finishing...")
                 loop_continuation = False
             else:
+                log.info("Next check in about {0} minute{1}"
+                         .format((preferences.get_time() / 60),
+                                 's' if (preferences.get_time() / 60) > 1 else ''))
                 sleep(preferences.get_time())
     except KeyboardInterrupt:
-        print("Received SIGINT - exiting...")
+        log.warning("Received SIGINT - exiting...")
         preferences.save_preferences()
         exit(1)
 
@@ -104,6 +108,13 @@ def parser():
                       required=False,
                       metavar="LOG FILE",
                       help="Specifies a custom LOG file for storing current daemon logs.")
+    args.add_argument("--preferences",
+                      type=str,
+                      default="user.preferences",
+                      required=False,
+                      metavar="PREFERENCES FILE",
+                      help="Provide a custom preferences file - useful for multiple running daemon for different 'A'"
+                           "Records. NOTICE THAT YOU MUST PROVIDE ALL REQUIRED PARAMS FOR A NEW CONFIGURATION")
     args.add_argument("--user",
                       type=str,
                       default=None,
@@ -152,6 +163,10 @@ def parser():
             preferences.set_log_file("/var/log/pygoddady.log")
     user = p_args.user
     group = p_args.group
+
+    if preferences:
+        if not (p_args.domain and p_args.name and p_args.key and p_args.secret):
+            print("You must provide the required params for a new preferences file")
     if should_save_preferences:
         preferences.save_preferences()
     if not is_first_execution:

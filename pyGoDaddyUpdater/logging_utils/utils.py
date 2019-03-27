@@ -32,7 +32,14 @@ def cleanup_old_logs(log_file: str):
 
 
 def setup_logging(logger_name: str, log_file: str, level=logging.DEBUG,
-                  formatter: str = "%(asctime)s | [%(levelname)s]: %(message)s"):
+                  formatter: str = "%(process)d - %(asctime)s | [%(levelname)s]: %(message)s"):
+    from os import path
+    from os import makedirs
+
+    log_dir = path.dirname(path.abspath(log_file))
+    if not path.exists(log_dir):
+        makedirs(log_dir)
+
     cleanup_old_logs(log_file)
     new_logging = logging.getLogger(logger_name)
     logging_formatter = logging.Formatter(formatter)
