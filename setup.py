@@ -12,7 +12,7 @@ with open(path.join(this, "README.md"), encoding="utf-8") as f:
 
 setup(
     name='pyGoDaddyUpdater',
-    version='1.1',
+    version='1.2',
     packages=['pyGoDaddyUpdater',
               'pyGoDaddyUpdater.values',
               'pyGoDaddyUpdater.network',

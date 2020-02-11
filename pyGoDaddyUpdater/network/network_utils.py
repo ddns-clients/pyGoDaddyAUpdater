@@ -17,8 +17,12 @@
 
 def get_machine_public_ip():
     import urllib.request
+    from urllib.error import URLError
 
-    return urllib.request.urlopen('https://ident.me').read().decode('utf8')
+    try:
+        return urllib.request.urlopen('https://api.ipify.org').read().decode('utf8')
+    except (ValueError, URLError) as _:
+        return None
 
 
 class GoDaddy(object):

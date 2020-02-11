@@ -13,6 +13,7 @@
 #
 #     You should have received a copy of the GNU General Public License
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
+import traceback
 from argparse import ArgumentParser
 from argparse import SUPPRESS
 from logging import getLogger
@@ -35,8 +36,9 @@ preferences = UserPreferences()
 def main():
     loop_continuation = True
     log = LoggingHandler(logs=[getLogger("appLogger")])
-    net = GoDaddy(preferences.get_domain(), preferences.get_name(), preferences.get_key(), preferences.get_secret())
     try:
+        net = GoDaddy(preferences.get_domain(), preferences.get_name(),
+                      preferences.get_key(), preferences.get_secret())
         while loop_continuation:
             current_ip = get_machine_public_ip()
             log.info("Current machine IP: \"{0}\"".format(current_ip))
@@ -44,7 +46,9 @@ def main():
                 preferences.set_latest_ip(net.get_godaddy_latest_ip())
                 log.warning("User saved latest IP is not up to date - downloading GoDaddy A Record value: \"{0}\""
                             .format(preferences.get_latest_ip()))
-            if preferences.get_latest_ip() != current_ip:
+            if not current_ip:
+                log.warning("Cannot obtain IP from ipfy")
+            if current_ip and preferences.get_latest_ip() != current_ip:
                 log.info("IP needs an upgrade - OLD IP: {0} | NEW IP: {1}"
                          .format(preferences.get_latest_ip(), current_ip))
                 result = net.set_goddady_ip(current_ip)
@@ -63,8 +67,13 @@ def main():
                 sleep(preferences.get_time())
     except KeyboardInterrupt:
         log.warning("Received SIGINT - exiting...")
+    except Exception as e:
+        log.error("Exception registered! - " + str(e))
+        log.error("Stacktrace: " + traceback.format_exc())
+        log.error("Please, submit the stacktrace to: dev@javinator9889.com")
+    finally:
         preferences.save_preferences()
-        exit(1)
+        exit(0)
 
 
 def parser():
@@ -166,7 +175,7 @@ def parser():
     user = p_args.user
     group = p_args.group
 
-    if preferences:
+    if p_args.preferences:
         if not (p_args.domain and p_args.name and p_args.key and p_args.secret):
             print("You must provide the required params for a new preferences file")
     if should_save_preferences:
